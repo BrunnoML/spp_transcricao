@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcrição de Áudio</title>
+    
+    <!-- Vue.js e Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+        input, select {
+            background: #2c2c2c;
+            color: #fff;
+            outline: none;
+        }
+        button {
+            background: #03dac6;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #00c4b4;
+        }
+        .transcription-box {
+            background: #2c2c2c;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: left;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .progress {
+            height: 10px;
+            background: #03dac6;
+            width: 0%;
+            transition: width 0.5s;
+            border-radius: 5px;
+        }
+        
+    </style>
+</head>
+<body>
+
+
+
+<div id="app" class="container">
+    <h1 style="fonte-size: 3em; font-weight: bold; color: purple;">Seja bem-vindo ao ApT</h1>
+    <p>Uma ferramenta para trascrever Áudio para Texto</p><br><br>
+    <h1 v-if="isAuthenticated">Transcrição de Áudio</h1>
+    <h1 v-else>Login</h1>
+
+    <!-- Formulário de Login -->
+    <div v-if="!isAuthenticated">
+        <input type="text" v-model="username" placeholder="Usuário">
+        <input type="password" v-model="password" placeholder="Senha">
+        <button @click="login">Entrar</button>
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    </div>
+
+    <!-- Transcrição de Áudio -->
+    <div v-if="isAuthenticated">
+        <label>Escolha o modelo do Whisper:</label>
+        <select v-model="selectedModel">
+            <option value="base">Básico - rápido e menor</option>
+            <option value="small">Pequeno - mais preciso</option>
+        </select>
+
+        <input type="file" @change="uploadFile">
+        <button @click="transcribeAudio">Transcrever</button>
+
+        <div class="progress-bar" v-if="isTranscribing">
+            <div class="progress" :style="{ width: progress + '%' }"></div>
+        </div>
+
+        <div v-if="transcriptions.length > 0">
+            <h3>Transcritos:</h3>
+            <div v-for="(item, index) in transcriptions" :key="index" class="transcription-box">
+                <strong>Transcrição {{ index + 1 }}:</strong> <br> {{ item.text }}
+                <p style="font-size: 12px; color: #bbb;">(Tempo: {{ item.time }}s)</p>
+                <button @click="downloadTranscription(index)">Baixar Transcrição</button>
+            </div>
+            <button @click="clearTranscriptions">Limpar textos transcritos!</button>
+        </div>
+    </div><br><br>
+<p>Feito com ☕ por <a href="https://www.brunnoml.com.br" target="blank">BrunnoML</a></p>
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            username: "",
+            password: "",
+            isAuthenticated: false,
+            selectedModel: "base",
+            selectedFile: null,
+            transcriptions: [],
+            errorMessage: "",
+            isTranscribing: false,
+            progress: 0
+        },
+        methods: {
+            async login() {
+                try {
+                    const response = await axios.post("http://127.0.0.1:5050/login", 
+                        new URLSearchParams({ username: this.username, password: this.password }),
+                        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+                    );
+                    if (response.data.message) {
+                        this.isAuthenticated = true;
+                        this.errorMessage = "";
+                    }
+                } catch (error) {
+                    this.errorMessage = "Credenciais inválidas!";
+                }
+            },
+            uploadFile(event) {
+                this.selectedFile = event.target.files[0];
+            },
+            async transcribeAudio() {
+                if (!this.selectedFile) {
+                    alert("Por favor, selecione um arquivo.");
+                    return;
+                }
+
+                this.isTranscribing = true;
+                this.progress = 0;
+
+                let timer = setInterval(() => { if (this.progress < 95) { this.progress += 5; } }, 500);
+
+                let formData = new FormData();
+                formData.append("file", this.selectedFile);
+                formData.append("model_size", this.selectedModel);
+
+                // Criando credenciais de autenticação em Base64
+                const credentials = btoa(`${this.username}:${this.password}`);
+
+                try {
+                    const response = await axios.post("http://127.0.0.1:5050/transcribe", formData, {
+                        headers: {
+                             "Content-Type": "multipart/form-data",
+                             "Authorization": `Basic ${credentials}`  // Envia as credenciais corretamente
+            }
+        });
+
+        this.transcriptions.push({ 
+            text: response.data.transcription, 
+            time: response.data.processing_time 
+        });
+
+                } catch (error) {
+                    console.error("Erro ao transcrever:", error);
+                    alert("Erro ao transcrever áudio.");
+                }
+
+                clearInterval(timer);
+                this.progress = 100;
+                setTimeout(() => {
+                    this.isTranscribing = false;
+                    this.progress = 0;
+                }, 1000);
+            },
+            clearTranscriptions() {
+                this.transcriptions = [];
+            },
+            downloadTranscription(index) {
+                const text = this.transcriptions[index].text;
+                const blob = new Blob([text], { type: "text/plain" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = `transcricao_${index + 1}.txt`;
+                link.click();
+            }
+        }
+    });
+</script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,25 @@
+# Ignorar a pasta do ambiente virtual
+venv/
+spp_env/
+env/
+backend/venv/
+
+# Arquivos de cache e compilação do Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Configurações do editor de código (VS Code, JetBrains, etc.)
+.vscode/
+.idea/
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.bak
+
+# Arquivos do macOS
+.DS_Store
+
+# Banco de dados temporário, se houver
+*.sqlite3
