@@ -150,7 +150,7 @@
         methods: {
             async login() {
                 try {
-                    const response = await axios.post("http://127.0.0.1:5050/login", 
+                    const response = await axios.post("http://127.0.0.1:5000/login", 
                         new URLSearchParams({ username: this.username, password: this.password }),
                         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
                     );
@@ -184,7 +184,7 @@
                 const credentials = btoa(`${this.username}:${this.password}`);
 
                 try {
-                    const response = await axios.post("http://127.0.0.1:5050/transcribe", formData, {
+                    const response = await axios.post("http://127.0.0.1:5000/transcribe", formData, {
                         headers: {
                              "Content-Type": "multipart/form-data",
                              "Authorization": `Basic ${credentials}`  // Envia as credenciais corretamente
