@@ -21,4 +21,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Comando para rodar a aplicação
-CMD ["python", "backend.py"]
+CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8080"]
