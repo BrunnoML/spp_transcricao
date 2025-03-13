@@ -1,0 +1,10 @@
+Iniciando de 16h do dia 12/03/2025 até 4h do dia 13/03/2025, com altos e baixos, tentando rodar a aplicação no Railway e ao verificar que ele não suportaria a memória e espaço dos modelos base e small, testei só o base mas não deu certo. Então migrei para o Google Cloud Run, porém precisei estudar como integrar com o github e gerar API e autenticações, depois de conseguir configurar os arquivos para rodar a aplicação utilizando o Docker, tanto na raiz do projeto com o docker-compose.yml, quanto os Dockerfile do bakend e do frontend, consegui gerar a imagem, mas como uso um macbook, foi gerada uma imagem arm64(macbook) e não amd64 para o linux onde é necessário. Tive que fazer novamente a construção da imagem para o formato correto. Ao fazer o deploy para o Google, depois de vários testes e tentativas com erros, consegui gerar o url do backend e então fiz o mesmo processo de erros e acertos para o frontend, gerando o url. Ao tentar acessar o backend, as requisições funcionaram inicialmente. Ao acessar o frontend, consegui fazer login, mas ao solicitar a transcição, apresentou erro. Nos logs de erro foi constatado que faltava o ffmpeg, então acrescentei no arquivo dockerfile do frontend para já instalar o ffmpeg. Gerei novamente as imagens e fiz o deploy, mas o erro agora era a comunicação entre o frontend e o backend, tive que alterar a configuração do arquivo backend.py para acrescentar a url direto do frontend no Google Cloud Run e alguns métodos na configuração do CORS.
+
+Finalmente, de 4h da madruga, depois de muita pesquisa e interação com inteligências artificiais para ajudar com os códigos, foi possível transcrever o primeiro áudio de teste diretamente na nuvem.
+
+Feliz que consegui, agora estudar mais e verificar o que pode ser melhorado, inclusive para suportar os modelos mais pesados do whisper, pois até agora só está com o base.
+
+Abraço!
+
+Brunno ML 
+13mar2025/04:19
