@@ -10,11 +10,12 @@ app = FastAPI()
 
 # Configuracao de CORS para permitir chamadas do frontend
 app.add_middleware(
-	CORSMiddleware,
-	allow_origins=["*"], #permite qualquer origem com o *, para restringir digitar o ip
-	allow_credentials=True,
-	allow_methods=["*"], #permite todos os metodos (POST, GET, etc.)
-	allow_headers=["*"], #permite todos os cabecalhos
+    CORSMiddleware,
+    allow_origins=["https://frontend-61528480897.us-central1.run.app"],  # Permite apenas o frontend
+    allow_credentials=True,
+    allow_methods=["POST", "GET", "OPTIONS"],  # Métodos permitidos
+    allow_headers=["Authorization", "Content-Type"],  # Apenas cabeçalhos necessários
+    expose_headers=["Content-Length", "Content-Type"]
 )
 
 
