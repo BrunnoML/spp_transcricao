@@ -4,14 +4,15 @@ FROM python:3.9
 # Define o diretório de trabalho no container
 WORKDIR /app
 
-# Instala o FFmpeg antes das dependências do Python
-RUN apt-get update && apt-get install -y ffmpeg
-
 # Copia os arquivos do backend para o container
 COPY backend.py requirements.txt /app/
 
 # Instala as dependências
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Instala o FFmpeg antes das dependências do Python
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
 
 # Define a variável de ambiente para a porta
 ENV PORT=8080

@@ -32,7 +32,7 @@ USER_CREDENTIALS = {"bml": "pcpe"}
 print("🔹 Baixando e carregando modelo 'base' e 'small' ... (isso pode demorar na primeira vez)")
 MODELS = {
     "base": whisper.load_model("base"),
-    "small": whisper.load_model("small") 
+    #"small": whisper.load_model("small") 
 }
 print("✅ Modelos carregados com sucesso!")
 
@@ -84,6 +84,11 @@ async def transcribe_audio(
     return {"transcription": result["text"],
     "processing_time": elapsed_time  # Enviar tempo para o frontend
     }
+
+@app.get("/")
+def home():
+    return {"message": "API rodando no Google Cloud Run"}
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))  # Obtém a porta do ambiente ou usa 8080 por padrão
