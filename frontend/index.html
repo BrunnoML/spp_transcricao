@@ -84,6 +84,16 @@
             transition: width 0.5s;
             border-radius: 5px;
         }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .titulo {
+    font-size: 3em;
+    font-weight: bold;
+    color: purple;
+}
         
     </style>
 </head>
@@ -92,7 +102,7 @@
 
 
 <div id="app" class="container">
-    <h1 style="fonte-size: 3em; font-weight: bold; color: purple;">Seja bem-vindo ao ApT</h1>
+    <h1 class="titulo">Seja bem-vindo ao ApT</h1>
     <p>Uma ferramenta para trascrever Áudio para Texto</p><br><br>
     <h1 v-if="isAuthenticated">Transcrição de Áudio</h1>
     <h1 v-else>Login</h1>
@@ -108,12 +118,12 @@
     <!-- Transcrição de Áudio -->
     <div v-if="isAuthenticated">
         <label>Escolha o modelo do Whisper:</label>
-        <select v-model="selectedModel">
+        <select v-model="selectedModel" title="Escolha o modelo do Whisper">
             <option value="base">Básico - rápido e menor</option>
             <option value="small">Pequeno - mais preciso</option>
         </select>
-
-        <input type="file" @change="uploadFile">
+        <label for="fileUpload">Selecione um arquivo de áudio:</label>
+        <input type="file" id="fileUpload" @change="uploadFile">
         <button @click="transcribeAudio">Transcrever</button>
 
         <div class="progress-bar" v-if="isTranscribing">
@@ -134,6 +144,11 @@
 </div>
 
 <script>
+    // Define a URL do backend dinamicamente
+    const apiBaseURL = "http://127.0.0.1:8080"     //window.location.hostname.includes("localhost") 
+        //? "http://127.0.0.1:8080"  // Local
+        //: "https://SEU-ENDERECO-GOOGLE-CLOUD-RUN"; // Produção
+
     new Vue({
         el: "#app",
         data: {
@@ -150,7 +165,7 @@
         methods: {
             async login() {
                 try {
-                    const response = await axios.post("http://127.0.0.1:5000/login", 
+                    const response = await axios.post(`${apiBaseURL}/login`, 
                         new URLSearchParams({ username: this.username, password: this.password }),
                         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
                     );
@@ -184,17 +199,17 @@
                 const credentials = btoa(`${this.username}:${this.password}`);
 
                 try {
-                    const response = await axios.post("http://127.0.0.1:5000/transcribe", formData, {
+                    const response = await axios.post(`${apiBaseURL}/transcribe`, formData, {
                         headers: {
                              "Content-Type": "multipart/form-data",
-                             "Authorization": `Basic ${credentials}`  // Envia as credenciais corretamente
-            }
-        });
+                             "Authorization": `Basic ${credentials}`
+                        }
+                    });
 
-        this.transcriptions.push({ 
-            text: response.data.transcription, 
-            time: response.data.processing_time 
-        });
+                    this.transcriptions.push({ 
+                        text: response.data.transcription, 
+                        time: response.data.processing_time 
+                    });
 
                 } catch (error) {
                     console.error("Erro ao transcrever:", error);
@@ -225,27 +240,3 @@
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -29,10 +29,10 @@ security = HTTPBasic()
 USER_CREDENTIALS = {"bml": "pcpe"}
 
 # Carregar apenas os modelos base e small
-print("🔹 Baixando e carregando modelo 'base'... (isso pode demorar na primeira vez)")
+print("🔹 Baixando e carregando modelo 'base' e 'small' ... (isso pode demorar na primeira vez)")
 MODELS = {
-    "base": whisper.load_model("base")
-    # "small": whisper.load_model("small") retirado para acelerar o carregamento e poder rodar a aplicação no Railway
+    "base": whisper.load_model("base"),
+    "small": whisper.load_model("small") 
 }
 print("✅ Modelos carregados com sucesso!")
 
@@ -86,4 +86,5 @@ async def transcribe_audio(
     }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    port = int(os.getenv("PORT", 8080))  # Obtém a porta do ambiente ou usa 8080 por padrão
+    uvicorn.run(app, host="0.0.0.0", port=port)
